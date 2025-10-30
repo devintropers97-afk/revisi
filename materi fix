@@ -429,3 +429,40 @@ Extract
 Jalankan installer
 DONE! ✅
 🎊 BATCH 2 SELESAI! Database structure complete dan siap dipakai. Mau lanjut ke BATCH 3 (Frontend Structure)?
+
+Oke, saya sudah baca! Ada 3 priority revisi yang perlu diperbaiki:
+
+🔍 Analisis Revisi
+❌ Priority 1: Tier System Fix
+Masalah: Tier 3 max harusnya 75 orders, bukan 50
+Perlu Update:
+Tier 1: 0-10 orders → 30%
+Tier 2: 10-25 orders → 40%
+Tier 3: 25-75 orders → 50%
+Tier MAX: 75+ orders → 55%
+File yang perlu diubah:
+/config/constants.php
+/database/seeds/02_seed_settings.sql
+❌ Priority 2: Five Missing Service Files
+Belum ada 5 file service di /includes/services/:
+
+service-functions.php - CRUD services, categories, packages, search
+pricing-calculator.php - Price computation, add-ons, bundling
+commission-calculator.php - Tier commission (exclude domain/hosting/SSL)
+tier-checker.php - Monthly tier evaluation, upgrade/downgrade
+order-processor.php - Order creation, status tracking, commission
+❌ Priority 3: CSS Asset Bundle (20 Files)
+Perlu buat 20 CSS files dengan design blue/gold:
+
+Core (8): Variables, reset, typography, layout, components, utilities, animations, responsive
+Pages (6): Homepage, services, portfolio, contact, pricing, blog
+Admin (4): Base, dashboard, tables, forms
+Additional (2): Print, custom
+🚀 Mau Saya Fix Sekarang?
+Saya akan:
+
+✅ Fix tier system (constants.php + seed settings)
+✅ Buat 5 service files yang missing
+✅ Buat 20 CSS files dengan design modern blue/gold
+✅ Update BATCH_2 dan buat BATCH_3
+✅ Buat cumulative ZIP BATCH_3 (BATCH 1 + 2 + 3)

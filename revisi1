@@ -1,278 +1,34 @@
-Halo Claude Code! 👋
+Hey Claude Code! 👋
 
-Saya sudah selesai setup BATCH 1 & 2, dan ada beberapa hal yang perlu diperbaiki dan dilanjutkan.
+Terima kasih untuk BATCH 1 & 2 yang sudah selesai! Saya sudah review dan ada 1 hal kecil yang perlu diperbaiki, plus lanjut ke BATCH 3.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 STATUS SAAT INI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ PRIORITY 1: FIX TIER SYSTEM (BATCH 1)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ BATCH 1: Installed & Working (18 files)
-   - config/ (8 files)
-   - includes/ (10 files + functions/)
+File: /config/constants.php
 
-✅ BATCH 2: Installed & Working (33 files)
-   - database/migrations/ (25 files)
-   - database/seeds/ (6 files)
-   - install.php & seed.php
+MASALAH:
+Di BATCH 1, Tier 3 max orders masih 50, harusnya 75.
 
-✅ Database: CONNECTED & TABLES CREATED (25 tables)
-✅ Seed Data: COMPLETED (admin user, settings, etc)
-✅ Test Connection: ALL PASSED
+TIER SYSTEM YANG SALAH (current):
+```php
+// Tier 3: 25-50 orders/month = 50%
+define('TIER_3_NAME', 'Tier 3 - Expert');
+define('TIER_3_MIN_ORDERS', 25);
+define('TIER_3_MAX_ORDERS', 50);      // ❌ SALAH! Harusnya 75
+define('TIER_3_COMMISSION', 50);
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ YANG PERLU DIPERBAIKI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. FIX TIER SYSTEM di config/constants.php
-
-Current tier system (SALAH):
-- Tier 1: 30% (0-10 orders TOTAL)
-- Tier 2: 40% (10-25 orders TOTAL)
-- Tier 3: 50% (25-50 orders TOTAL)
-- Tier MAX: 55% (75+ orders TOTAL)
-
-Harus diganti dengan yang BENAR (sesuai file TIER_SYSTEM_CORRECT.php):
-- TIER 1: 30% komisi | Target: 0-10 orders/BULAN | Naik ke Tier 2 ketika capai 10 orders
-- TIER 2: 40% komisi | Target: 10-25 orders/BULAN | Naik ke Tier 3 ketika capai 25 | Turun ke Tier 1 jika < 10
-- TIER 3: 50% komisi | Target: 25-75 orders/BULAN | Naik ke Tier MAX ketika capai 75 | Turun ke Tier 2 jika < 25
-- TIER MAX: 55% komisi | Target: 75+ orders/BULAN | Turun ke Tier 3 jika < 75
-
-CATATAN PENTING:
-- Perhitungan berdasarkan ORDERS PER BULAN (bukan total lifetime)
-- Tier check dilakukan setiap akhir bulan (cron job)
-- Auto upgrade/downgrade berdasarkan performa bulan berjalan
-
-ACTION:
-Tolong replace section tier system di /config/constants.php (line 114-139) dengan code yang ada di file TIER_SYSTEM_CORRECT.php yang saya upload.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-2. MISSING FILES (5 files yang sangat penting)
-
-Location: /includes/services/
-
-Files yang belum ada:
-❌ service-functions.php       - CRUD operations untuk services
-❌ pricing-calculator.php      - Logic untuk hitung harga (with add-ons, packages)
-❌ commission-calculator.php   - Logic untuk hitung komisi partner
-❌ tier-checker.php            - Logic untuk check & update tier partner
-❌ order-processor.php         - Logic untuk process order
-
-ACTION:
-Tolong buatkan 5 files ini dengan requirements:
-- Follow struktur code yang sudah ada di BATCH 1
-- Gunakan tier system yang BARU (monthly-based, bukan total)
-- Include proper error handling
-- Add comprehensive comments
-- Use consistent naming conventions
-
-DETAIL REQUIREMENTS:
-
-a) service-functions.php:
-   - getServices() - Get all services
-   - getServiceById($id) - Get single service
-   - getServicesByCategory($category_id) - Filter by category
-   - createService($data) - Create new service
-   - updateService($id, $data) - Update service
-   - deleteService($id) - Delete service
-
-b) pricing-calculator.php:
-   - calculateServicePrice($service_id, $addons = []) - Base price + addons
-   - calculatePackagePrice($package_id) - Package bundling discount
-   - applyDiscount($price, $discount_percent) - Apply discount
-   - getTotalOrderPrice($items) - Calculate total order with multiple items
-
-c) commission-calculator.php:
-   - calculateCommission($order_value, $tier_id) - Calculate commission by tier
-   - getCommissionableAmount($order_value, $third_party_costs) - Exclude third-party
-   - getPartnerCommissionHistory($partner_id, $month, $year) - Commission history
-   
-   IMPORTANT: Commission TIDAK dihitung dari:
-   - Domain registration (third-party)
-   - Hosting fees (third-party)
-   - SSL certificates (third-party)
-   - Google Workspace (third-party)
-   
-   Commission HANYA dari jasa SITUNEO.
-
-d) tier-checker.php:
-   - getCurrentTier($partner_id) - Get partner's current tier
-   - getOrdersThisMonth($partner_id) - Count orders in current month
-   - checkTierUpdate($partner_id) - Check if need upgrade/downgrade
-   - updatePartnerTier($partner_id, $new_tier) - Update tier in database
-   - sendTierNotification($partner_id, $old_tier, $new_tier) - Email notification
-   
-   Logic tier update (MONTHLY BASIS):
-   - Tier 1 → Tier 2: Ketika dapat 10 orders dalam 1 bulan
-   - Tier 2 → Tier 3: Ketika dapat 25 orders dalam 1 bulan
-   - Tier 3 → Tier MAX: Ketika dapat 75 orders dalam 1 bulan
-   - Tier 2 → Tier 1: Ketika bulan berikutnya dapat < 10 orders
-   - Tier 3 → Tier 2: Ketika bulan berikutnya dapat < 25 orders
-   - Tier MAX → Tier 3: Ketika bulan berikutnya dapat < 75 orders
-
-e) order-processor.php:
-   - createOrder($customer_id, $items, $partner_id = null) - Create new order
-   - updateOrderStatus($order_id, $status) - Update order status
-   - assignOrderToPartner($order_id, $partner_id) - Assign to partner
-   - calculateOrderCommission($order_id) - Calculate commission for this order
-   - processOrderPayment($order_id, $payment_data) - Process payment
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 SETELAH FIX & MISSING FILES SELESAI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Langsung lanjut ke BATCH 3: CSS Assets (20 files)
-
-Requirements BATCH 3:
-- Location: /assets/css/
-- Files needed:
-  1. variables.css - Colors, fonts, spacing
-  2. reset.css - CSS reset
-  3. typography.css - Font styles
-  4. layout.css - Grid & flexbox
-  5. components.css - Buttons, cards, forms
-  6. utilities.css - Helper classes
-  7. animations.css - Keyframes
-  8. responsive.css - Media queries
-  9-14. /pages/*.css - Page-specific styles (homepage, services, portfolio, contact, pricing, blog)
-  15-18. /admin/*.css - Admin panel styles
-  19-20. Custom components
-
-Design System (dari analisis):
-- Primary Blue: #1E5C99
-- Dark Blue: #0F3057
-- Gold: #FFB400
-- Bright Gold: #FFD700
-- White: #FFFFFF
-- Text Light: #e9ecef
-
-- Font Primary: Plus Jakarta Sans
-- Font Secondary: Inter
-- Font Weights: 300, 400, 500, 600, 700, 800, 900
-
-Style: Modern, Premium, Luxury, Professional
-Tone: Elegant tapi approachable
-Animation: Smooth transitions, AOS (Animate On Scroll)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 SUMMARY ACTIONS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-PRIORITAS 1 (HIGH - URGENT):
-1. ✅ Fix tier system di /config/constants.php
-2. ✅ Buat 5 missing files di /includes/services/
-
-PRIORITAS 2 (HIGH - NEXT):
-3. ✅ BATCH 3: CSS Assets (20 files)
-
-Format response yang saya harapkan:
-1. Konfirmasi bahwa kamu sudah baca semua requirements
-2. List file-file yang akan kamu buat/fix
-3. Estimasi waktu atau urutan pengerjaan
-4. Mulai dengan fix tier system dulu, lalu 5 missing files, baru BATCH 3
-
-Siap mulai? 🚀
+// Tier MAX: 75+ orders/month = 55%
+define('TIER_MAX_NAME', 'Tier MAX - Elite');
+define('TIER_MAX_MIN_ORDERS', 75);
+define('TIER_MAX_COMMISSION', 55);
 ```
 
----
-
-## ✅ FILES YANG PERLU KAMU UPLOAD KE CLAUDE CODE:
-
-Sebelum kirim pesan di atas, **upload file ini dulu** ke Claude Code:
-
-1. **TIER_SYSTEM_CORRECT.php** - Biar dia tau tier system yang benar
-2. **SITUNEO_ANALISIS_LENGKAP_REVISED.md** - Biar dia ingat semua spesifikasi
-3. **STRUKTUR_FILE_LENGKAP.md** - Biar dia tau struktur lengkap
-
----
-
-## 📝 CARA KIRIM KE CLAUDE CODE:
-
-### Step 1: Upload Files
-```
-1. Buka Claude Code
-2. Upload 3 files di atas
-3. Tunggu sampai ter-upload
-```
-
-### Step 2: Kirim Pesan
-```
-1. Copy pesan yang saya kasih di atas
-2. Paste ke Claude Code
-3. Send!
-```
-
-### Step 3: Tunggu Response
-```
-Claude Code akan:
-1. Konfirmasi sudah baca
-2. List file yang akan dibuat
-3. Mulai kerjakan
-```
-
----
-
-## 🎯 EXPECTED RESPONSE dari Claude Code:
-
-Kira-kira responsnya seperti ini:
-```
-✅ Understood! Saya sudah baca semua requirements.
-
-ACTIONS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PRIORITAS 1:
-1. Fix tier system di /config/constants.php
-2. Create 5 missing files:
-   - /includes/services/service-functions.php
-   - /includes/services/pricing-calculator.php
-   - /includes/services/commission-calculator.php
-   - /includes/services/tier-checker.php
-   - /includes/services/order-processor.php
-
-PRIORITAS 2:
-3. BATCH 3: CSS Assets (20 files)
-
-ESTIMASI:
-- Fix tier system: 5 menit
-- 5 missing files: 30 menit
-- BATCH 3: 1 jam
-
-Mulai sekarang!
-```
-
----
-
-## 💡 TIPS:
-
-1. **Jangan lupa upload 3 files** sebelum kirim pesan
-2. **Pesan sudah lengkap**, tinggal copy paste
-3. **Kalau Claude Code bingung**, dia akan tanya - jawab aja
-4. **Kalau ada error**, screenshot dan tanya di sini (Claude.ai)
-5. **Track progress** - minta update setelah setiap task selesai
-
----
-
-## ⚠️ KALAU CLAUDE CODE LUPA SESUATU:
-
-Reminder yang bisa kamu kirim:
-```
-Reminder:
-- Tier system itu MONTHLY basis, bukan total lifetime
-- Commission TIDAK dihitung dari third-party costs (domain, hosting, SSL)
-- Gunakan tier config yang ada di TIER_SYSTEM_CORRECT.php
-- Ikuti design system: Primary Blue #1E5C99, Gold #FFB400
-- Font: Plus Jakarta Sans & Inter
-
-<?php
-/**
- * ========================================
- * TIER SYSTEM CORRECT - SITUNEO DIGITAL
- * Sesuai Logic: Target Bulanan dengan Auto Upgrade/Downgrade
- * ========================================
- */
-
+HARUS DIGANTI DENGAN (correct):
+```php
 // ============================================
-// FREELANCE TIER SYSTEM (4 TIERS)
+// FREELANCE TIER SYSTEM (4 TIERS - MONTHLY BASIS)
 // ============================================
 
 /**
@@ -289,9 +45,9 @@ Reminder:
  * - Auto downgrade: Ketika di bulan berikutnya dapat < 10 orders
  * 
  * TIER 3 (Expert) - 50% Komisi
- * - Target: 25-50 orders per bulan (stable)
- * - Maintain: Jika dapat 25-50 orders tetap di tier 3
- * - Auto upgrade: Ketika capai 75+ orders dalam sebulan
+ * - Target: 25-75 orders per bulan (PENTING: 75 bukan 50!)
+ * - Maintain: Jika dapat 25-75 orders tetap di tier 3
+ * - Auto upgrade: Ketika capai 75 orders dalam sebulan
  * - Auto downgrade: Ketika di bulan berikutnya dapat < 25 orders
  * 
  * TIER MAX (Elite) - 55% Komisi (MAKSIMAL!)
@@ -305,9 +61,7 @@ Reminder:
  * - Upgrade/downgrade otomatis berdasarkan performa bulan berjalan
  */
 
-// ============================================
 // TIER 1: STARTER (30%)
-// ============================================
 define('TIER_1_NAME', 'Tier 1 - Starter');
 define('TIER_1_COMMISSION', 30);
 define('TIER_1_TARGET_MIN', 0);
@@ -317,9 +71,7 @@ define('TIER_1_DOWNGRADE_AT', null);    // Tidak bisa turun (tier terendah)
 define('TIER_1_ICON', '🥉');
 define('TIER_1_COLOR', '#CD7F32');
 
-// ============================================
 // TIER 2: PROFESSIONAL (40%)
-// ============================================
 define('TIER_2_NAME', 'Tier 2 - Professional');
 define('TIER_2_COMMISSION', 40);
 define('TIER_2_TARGET_MIN', 10);
@@ -329,21 +81,17 @@ define('TIER_2_DOWNGRADE_AT', 10);      // Turun ke Tier 1 jika < 10 orders
 define('TIER_2_ICON', '🥈');
 define('TIER_2_COLOR', '#C0C0C0');
 
-// ============================================
 // TIER 3: EXPERT (50%)
-// ============================================
 define('TIER_3_NAME', 'Tier 3 - Expert');
 define('TIER_3_COMMISSION', 50);
 define('TIER_3_TARGET_MIN', 25);
-define('TIER_3_TARGET_MAX', 75);
+define('TIER_3_TARGET_MAX', 75);        // ✅ BENAR: 75 (bukan 50!)
 define('TIER_3_UPGRADE_AT', 75);        // Naik ke Tier MAX setelah 75 orders
 define('TIER_3_DOWNGRADE_AT', 25);      // Turun ke Tier 2 jika < 25 orders
 define('TIER_3_ICON', '🥇');
 define('TIER_3_COLOR', '#FFD700');
 
-// ============================================
 // TIER MAX: ELITE (55%)
-// ============================================
 define('TIER_MAX_NAME', 'Tier MAX - Elite');
 define('TIER_MAX_COMMISSION', 55);
 define('TIER_MAX_TARGET_MIN', 75);
@@ -353,1107 +101,680 @@ define('TIER_MAX_DOWNGRADE_AT', 75);    // Turun ke Tier 3 jika < 75 orders
 define('TIER_MAX_ICON', '👑');
 define('TIER_MAX_COLOR', '#B9F2FF');
 
-// ============================================
 // TIER IDs (untuk database)
-// ============================================
 define('TIER_1_ID', 1);
 define('TIER_2_ID', 2);
 define('TIER_3_ID', 3);
 define('TIER_MAX_ID', 4);
 
-// ============================================
-// TIER CONFIGURATION ARRAY
-// ============================================
-// Array ini untuk memudahkan iterasi dan checking
-function getTierConfig() {
-    return [
-        TIER_1_ID => [
-            'id' => TIER_1_ID,
-            'name' => TIER_1_NAME,
-            'commission' => TIER_1_COMMISSION,
-            'target_min' => TIER_1_TARGET_MIN,
-            'target_max' => TIER_1_TARGET_MAX,
-            'upgrade_at' => TIER_1_UPGRADE_AT,
-            'downgrade_at' => TIER_1_DOWNGRADE_AT,
-            'icon' => TIER_1_ICON,
-            'color' => TIER_1_COLOR,
-            'description' => '0-10 orders/bulan'
-        ],
-        TIER_2_ID => [
-            'id' => TIER_2_ID,
-            'name' => TIER_2_NAME,
-            'commission' => TIER_2_COMMISSION,
-            'target_min' => TIER_2_TARGET_MIN,
-            'target_max' => TIER_2_TARGET_MAX,
-            'upgrade_at' => TIER_2_UPGRADE_AT,
-            'downgrade_at' => TIER_2_DOWNGRADE_AT,
-            'icon' => TIER_2_ICON,
-            'color' => TIER_2_COLOR,
-            'description' => '10-25 orders/bulan'
-        ],
-        TIER_3_ID => [
-            'id' => TIER_3_ID,
-            'name' => TIER_3_NAME,
-            'commission' => TIER_3_COMMISSION,
-            'target_min' => TIER_3_TARGET_MIN,
-            'target_max' => TIER_3_TARGET_MAX,
-            'upgrade_at' => TIER_3_UPGRADE_AT,
-            'downgrade_at' => TIER_3_DOWNGRADE_AT,
-            'icon' => TIER_3_ICON,
-            'color' => TIER_3_COLOR,
-            'description' => '25-75 orders/bulan'
-        ],
-        TIER_MAX_ID => [
-            'id' => TIER_MAX_ID,
-            'name' => TIER_MAX_NAME,
-            'commission' => TIER_MAX_COMMISSION,
-            'target_min' => TIER_MAX_TARGET_MIN,
-            'target_max' => TIER_MAX_TARGET_MAX,
-            'upgrade_at' => TIER_MAX_UPGRADE_AT,
-            'downgrade_at' => TIER_MAX_DOWNGRADE_AT,
-            'icon' => TIER_MAX_ICON,
-            'color' => TIER_MAX_COLOR,
-            'description' => '75+ orders/bulan'
-        ]
-    ];
-}
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-/**
- * Get tier by ID
- */
-function getTierById($tier_id) {
-    $tiers = getTierConfig();
-    return isset($tiers[$tier_id]) ? $tiers[$tier_id] : null;
-}
-
-/**
- * Get commission rate by tier ID
- */
-function getCommissionRate($tier_id) {
-    $tier = getTierById($tier_id);
-    return $tier ? $tier['commission'] : 0;
-}
-
-/**
- * Check tier berdasarkan jumlah orders bulan ini
- * 
- * @param int $current_tier Current tier ID
- * @param int $orders_this_month Total orders dalam bulan berjalan
- * @return array ['new_tier' => int, 'upgraded' => bool, 'downgraded' => bool]
- */
-function checkTierUpdate($current_tier, $orders_this_month) {
-    $tiers = getTierConfig();
-    $current_config = $tiers[$current_tier];
-    
-    $result = [
-        'new_tier' => $current_tier,
-        'upgraded' => false,
-        'downgraded' => false,
-        'message' => ''
-    ];
-    
-    // Check UPGRADE
-    if ($current_config['upgrade_at'] !== null && $orders_this_month >= $current_config['upgrade_at']) {
-        $new_tier = $current_tier + 1;
-        if (isset($tiers[$new_tier])) {
-            $result['new_tier'] = $new_tier;
-            $result['upgraded'] = true;
-            $result['message'] = "Selamat! Tier naik ke {$tiers[$new_tier]['name']} ({$tiers[$new_tier]['commission']}%)";
-        }
-    }
-    // Check DOWNGRADE
-    else if ($current_config['downgrade_at'] !== null && $orders_this_month < $current_config['downgrade_at']) {
-        $new_tier = $current_tier - 1;
-        if (isset($tiers[$new_tier])) {
-            $result['new_tier'] = $new_tier;
-            $result['downgraded'] = true;
-            $result['message'] = "Tier turun ke {$tiers[$new_tier]['name']} ({$tiers[$new_tier]['commission']}%). Target tidak tercapai.";
-        }
-    }
-    // MAINTAIN
-    else {
-        $result['message'] = "Maintain tier {$current_config['name']} ({$current_config['commission']}%)";
-    }
-    
-    return $result;
-}
-
-/**
- * Calculate commission amount
- * 
- * @param float $order_value Order value
- * @param int $tier_id Tier ID
- * @return float Commission amount
- */
-function calculateCommission($order_value, $tier_id) {
-    $commission_rate = getCommissionRate($tier_id);
-    return ($order_value * $commission_rate) / 100;
-}
-
-// ============================================
-// CONTOH PENGGUNAAN
-// ============================================
-
-/*
-// Freelancer A - Tier 1
-$current_tier = TIER_1_ID;
-$orders_bulan_ini = 12;
-
-$check = checkTierUpdate($current_tier, $orders_bulan_ini);
-// Result: upgraded = true, new_tier = 2 (Tier 2)
-
-// Freelancer B - Tier 2
-$current_tier = TIER_2_ID;
-$orders_bulan_ini = 8;
-
-$check = checkTierUpdate($current_tier, $orders_bulan_ini);
-// Result: downgraded = true, new_tier = 1 (Tier 1)
-
-// Freelancer C - Tier 3
-$current_tier = TIER_3_ID;
-$orders_bulan_ini = 30;
-
-$check = checkTierUpdate($current_tier, $orders_bulan_ini);
-// Result: maintain (tidak naik, tidak turun)
-
-// Freelancer D - Tier 3
-$current_tier = TIER_3_ID;
-$orders_bulan_ini = 80;
-
-$check = checkTierUpdate($current_tier, $orders_bulan_ini);
-// Result: upgraded = true, new_tier = 4 (Tier MAX)
-
-// Calculate commission
-$order_value = 5000000; // Rp 5 juta
-$tier = TIER_2_ID;
-$commission = calculateCommission($order_value, $tier);
-// Result: Rp 2.000.000 (40% dari 5 juta)
-*/
-
-// ============================================
-// WITHDRAWAL SETTINGS
-// ============================================
+// Withdrawal settings
 define('WITHDRAWAL_MIN_AMOUNT', 50000);     // Minimum Rp 50K
 define('WITHDRAWAL_FEE', 0);                // No fee
 define('WITHDRAWAL_PROCESS_DAYS', 3);       // 3 working days
-
-?>
-
-# 🚀 PANDUAN SETUP LENGKAP - SITUNEO DIGITAL
-
-## 📋 CEK HASIL BATCH 1 & 2
-
-### ✅ BATCH 1 - SUDAH BENAR! (Core Config & Functions)
-```
-✅ /config/database.php          - Database connection class
-✅ /config/constants.php          - Company data (NIB, email, dll)
-✅ /config/settings.php           - Dynamic settings
-✅ /config/routes.php             - URL routing
-✅ /config/email.php              - Email config
-✅ /config/payment.php            - Payment config
-✅ /config/session.php            - Session management
-✅ /config/security.php           - Security settings
-
-✅ /includes/init.php             - Main initializer
-✅ /includes/helpers.php          - Helper functions
-
-✅ /includes/functions/auth.php          - Authentication
-✅ /includes/functions/string.php        - String utilities
-✅ /includes/functions/validation.php    - Input validation
-✅ /includes/functions/format.php        - Format Rupiah, Date
-✅ /includes/functions/security.php      - XSS, CSRF protection
-✅ /includes/functions/email.php         - Send email functions
-✅ /includes/functions/file.php          - File upload handler
-✅ /includes/functions/notification.php  - Notification system
 ```
 
-**TOTAL: 18 files ✅**
+ACTION REQUIRED:
+1. Buka /config/constants.php
+2. Replace section tier system (line 114-139 atau sekitar itu) dengan code di atas
+3. Save file
+4. Update ZIP: Buat SITUNEO_BATCH_2_FIXED.zip yang sudah include fix ini
+5. Kasih saya ZIP yang baru
 
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ PRIORITY 2: CREATE MISSING FILES (5 FILES PENTING)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### ✅ BATCH 2 - SUDAH BENAR! (Database Structure)
-```
-✅ /database/migrations/ (25 files)
-   01_create_users_table.sql
-   02_create_user_profiles_table.sql
-   03_create_password_resets_table.sql
-   04_create_login_logs_table.sql
-   05_create_service_categories_table.sql
-   06_create_services_table.sql
-   07_create_service_packages_table.sql
-   08_create_orders_table.sql
-   09_create_order_items_table.sql
-   10_create_order_status_history_table.sql
-   11_create_payments_table.sql
-   12_create_payment_methods_table.sql
-   13_create_freelancers_table.sql
-   14_create_commissions_table.sql
-   15_create_withdrawals_table.sql
-   16_create_notifications_table.sql
-   17_create_security_logs_table.sql
-   18_create_activity_logs_table.sql
-   19_create_settings_table.sql
-   20_create_testimonials_table.sql
-   21_create_portfolios_table.sql
-   22_create_faqs_table.sql
-   23_create_contact_messages_table.sql
-   24_create_blog_categories_table.sql
-   25_create_blog_posts_table.sql
+Location: /includes/services/
 
-✅ /database/seeds/ (6 files)
-   01_seed_admin_user.sql
-   02_seed_settings.sql
-   03_seed_payment_methods.sql
-   04_seed_service_categories.sql
-   05_seed_faqs.sql
-   06_seed_blog_categories.sql
+Ada 5 files yang belum dibuat di BATCH 1, tapi sangat penting untuk sistem:
 
-✅ /database/install.php          - Database installer
-✅ /database/seed.php              - Database seeder
-```
+1. ❌ service-functions.php
+2. ❌ pricing-calculator.php
+3. ❌ commission-calculator.php
+4. ❌ tier-checker.php
+5. ❌ order-processor.php
 
-**TOTAL: 33 files ✅**
+Tolong buatkan 5 files ini dengan requirements berikut:
 
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE 1: /includes/services/service-functions.php
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## ⚠️ YANG PERLU DIPERHATIKAN
-
-### 1. ❌ TIER SYSTEM SALAH!
-
-**Di file `/config/constants.php` line 114-136:**
+Functions needed:
 ```php
-// TIER SYSTEM SEKARANG (SALAH!):
-Tier 1: 0-10 orders = 30%
-Tier 2: 10-25 orders = 40%
-Tier 3: 25-50 orders = 50%
-Tier MAX: 75+ orders = 55%
-```
-
-**SEHARUSNYA (BENAR):**
-```php
-// TIER SYSTEM YANG BENAR:
-Bronze: 15%
-Silver: 25% (syarat: 6 orders total, maintain 3/bulan)
-Gold: 35% (syarat: 16 orders total, maintain 8/bulan)
-Platinum: 45% (syarat: 31 orders total, maintain 15/bulan)
-Diamond: 50% (syarat: 51 orders total, maintain 25/bulan)
-```
-
-**SOLUSI:** Nanti kita fix di Claude Code atau bisa saya buatkan file fix nya sekarang.
-
----
-
-### 2. ⚠️ FILE BELUM ADA
-
-Beberapa file ini **BELUM ADA** tapi dibutuhkan:
-
-**Missing Files:**
-```
-❌ /includes/services/service-functions.php      - Service CRUD
-❌ /includes/services/pricing-calculator.php     - Price calculation
-❌ /includes/services/commission-calculator.php  - Commission logic
-❌ /includes/services/tier-checker.php           - Tier management
-❌ /includes/services/order-processor.php        - Order processing
-```
-
-**Ini file penting untuk:**
-- Hitung komisi partner
-- Cek tier partner
-- Process order
-- Hitung harga
-
-**SOLUSI:** Minta Claude Code bikin di BATCH berikutnya, atau saya buatkan sekarang.
-
----
-
-## 🔧 CARA SETUP & KONEK SEMUA FILE
-
-### STEP 1: Upload ke Server
-
-**Upload semua file ke server:**
-```
-1. Extract BATCH_1.zip
-2. Extract BATCH_2.zip
-3. Upload ke public_html/ atau root folder website
-```
-
-**Struktur folder di server:**
-```
-public_html/
-├── config/
-│   ├── database.php
-│   ├── constants.php
-│   └── ... (8 files)
-├── includes/
-│   ├── init.php
-│   ├── helpers.php
-│   └── functions/
-│       └── ... (8 files)
-├── database/
-│   ├── migrations/
-│   │   └── ... (25 files)
-│   ├── seeds/
-│   │   └── ... (6 files)
-│   ├── install.php
-│   └── seed.php
-└── test_connection.php (file baru dari saya)
-```
-
----
-
-### STEP 2: Test Koneksi
-
-**Akses file test:**
-```
-http://domainanda.com/test_connection.php
-```
-
-**File ini akan test:**
-- ✅ PHP version (min 7.4)
-- ✅ Database connection
-- ✅ PHP extensions (mysqli, json, mbstring, curl, gd)
-- ✅ File structure
-- ✅ Database tables (jika sudah install)
-- ✅ Directory permissions (uploads/, logs/)
-
-**Jika semua HIJAU (✅), lanjut ke STEP 3!**
-
----
-
-### STEP 3: Install Database
-
-**Cara 1: Via Browser (Recommended)**
-```
-http://domainanda.com/database/install.php
-```
-
-**Cara 2: Via Command Line**
-```bash
-cd public_html
-php database/install.php
-```
-
-**Output yang diharapkan:**
-```
-╔════════════════════════════════════════════╗
-║   SITUNEO DIGITAL - Database Installer    ║
-╚════════════════════════════════════════════╝
-
-🔌 Connecting to database...
-✅ Connected successfully!
-
-📁 Found 25 migration files
-
-⚙️  Running: 01_create_users_table.sql ... ✅
-⚙️  Running: 02_create_user_profiles_table.sql ... ✅
-⚙️  Running: 03_create_password_resets_table.sql ... ✅
-... (semua file)
-──────────────────────────────────────────────
-📊 Installation Summary:
-   ✅ Success: 25 files
-   ❌ Failed: 0 files
-──────────────────────────────────────────────
-
-🎉 Database installed successfully!
-
-🔒 Created lock file: config/installed.lock
-⚠️  PENTING: Hapus file database/install.php untuk keamanan!
-
-📝 Next steps:
-   1. Jalankan seeder: php database/seed.php
-   2. Hapus file: database/install.php
-   3. Hapus file: database/seed.php (setelah seeding)
-```
-
----
-
-### STEP 4: Seed Data (Isi Data Default)
-
-**Cara 1: Via Browser**
-```
-http://domainanda.com/database/seed.php
-```
-
-**Cara 2: Via Command Line**
-```bash
-php database/seed.php
-```
-
-**Data yang akan diisi:**
-- ✅ Admin user (email: admin@situneo.my.id, password: admin123)
-- ✅ Default settings
-- ✅ Payment methods
-- ✅ Service categories
-- ✅ FAQs
-- ✅ Blog categories
-
----
-
-### STEP 5: Buat File Index (Homepage)
-
-**Buat file `index.php` di root:**
-```php
-<?php
 /**
- * SITUNEO DIGITAL - Homepage
+ * Get all active services
  */
+function getServices($category_id = null) {
+    // Return array of services
+    // Filter by category if provided
+}
 
-// Define base path
-define('BASE_PATH', __DIR__);
+/**
+ * Get single service by ID
+ */
+function getServiceById($id) {
+    // Return single service array or null
+}
 
-// Load initializer
-require_once __DIR__ . '/includes/init.php';
+/**
+ * Get services by category
+ */
+function getServicesByCategory($category_id) {
+    // Return array of services in category
+}
 
-// Page title
-$pageTitle = COMPANY_NAME . ' - ' . COMPANY_SLOGAN_ID;
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-            background: linear-gradient(135deg, <?= COLOR_DARK_BLUE ?> 0%, <?= COLOR_PRIMARY_BLUE ?> 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-        }
-        h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            background: <?= COLOR_GRADIENT_GOLD ?>;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        p {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 40px 0;
-            flex-wrap: wrap;
-        }
-        .stat {
-            padding: 20px;
-        }
-        .stat-number {
-            font-size: 48px;
-            font-weight: bold;
-            color: <?= COLOR_BRIGHT_GOLD ?>;
-        }
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .cta {
-            margin-top: 30px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            background: <?= COLOR_GRADIENT_GOLD ?>;
-            color: #333;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 18px;
-            transition: transform 0.3s;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-        }
-        .info {
-            margin-top: 40px;
-            padding: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            border: 2px solid <?= COLOR_GOLD ?>;
-        }
-        .info code {
-            background: rgba(0,0,0,0.3);
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1><?= COMPANY_NAME ?></h1>
-        <p><?= COMPANY_TAGLINE ?></p>
-        <p style="font-size: 20px; color: <?= COLOR_BRIGHT_GOLD ?>;">
-            <?= COMPANY_USP ?>
-        </p>
+/**
+ * Get all service packages/bundles
+ */
+function getServicePackages() {
+    // Return array of packages
+}
 
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number"><?= STATS_CLIENTS ?></div>
-                <div class="stat-label">Klien Puas</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number"><?= STATS_PROJECTS ?></div>
-                <div class="stat-label">Proyek Selesai</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number"><?= STATS_SATISFACTION ?></div>
-                <div class="stat-label">Rating</div>
-            </div>
-        </div>
+/**
+ * Search services by keyword
+ */
+function searchServices($keyword) {
+    // Search in name and description
+}
 
-        <div class="cta">
-            <a href="https://wa.me/<?= CONTACT_WHATSAPP ?>" class="btn">
-                💬 Chat WhatsApp Sekarang
-            </a>
-        </div>
-
-        <div class="info">
-            <h3 style="margin-bottom: 15px;">✅ System Status</h3>
-            <p style="font-size: 16px;">
-                Database: <strong style="color: #28a745;">CONNECTED</strong><br>
-                Config: <strong style="color: #28a745;">LOADED</strong><br>
-                Functions: <strong style="color: #28a745;">READY</strong>
-            </p>
-            <p style="font-size: 14px; margin-top: 15px; opacity: 0.8;">
-                BATCH 1 & 2 berhasil ter-install!<br>
-                Sekarang ready untuk BATCH 3 (CSS & Design)
-            </p>
-        </div>
-
-        <div style="margin-top: 30px; font-size: 14px; opacity: 0.7;">
-            <p>NIB: <?= COMPANY_NIB ?></p>
-            <p><?= CONTACT_EMAIL_ADMIN ?> | <?= CONTACT_WHATSAPP_FORMATTED ?></p>
-        </div>
-    </div>
-</body>
-</html>
+/**
+ * Get featured/popular services
+ */
+function getFeaturedServices($limit = 6) {
+    // Return top services
+}
 ```
 
-**Akses:**
-```
-http://domainanda.com/
-```
+Requirements:
+- Use global $db from database.php
+- Return associative arrays
+- Handle errors gracefully
+- Add proper SQL escaping
+- Max 200 lines
 
-**Jika muncul halaman dengan:**
-- ✅ Logo SITUNEO DIGITAL
-- ✅ Statistik (50+, 200+, 4.9/5.0)
-- ✅ Button WhatsApp
-- ✅ System Status: CONNECTED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE 2: /includes/services/pricing-calculator.php
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Berarti BERHASIL! 🎉**
-
----
-
-## 📊 CHECKLIST LENGKAP
-
-### ✅ Yang Sudah Selesai:
-- [x] BATCH 1: Core Config & Functions (18 files)
-- [x] BATCH 2: Database Structure (33 files)
-- [x] Database connection working
-- [x] All constants defined
-- [x] All functions ready
-
-### ⚠️ Yang Perlu Diperbaiki:
-- [ ] Fix tier system (constants.php)
-- [ ] Buat missing service functions (5 files)
-
-### 🔜 Next Steps:
-- [ ] BATCH 3: CSS Assets (20 files)
-- [ ] BATCH 4: JavaScript Assets (20 files)
-- [ ] BATCH 5: Layout Components (18 files)
-- [ ] ... (dan seterusnya sampai BATCH 15)
-
----
-
-## 🐛 TROUBLESHOOTING
-
-### Problem 1: Database Connection Failed
-**Error:** `Connection failed: Access denied`
-
-**Solusi:**
-1. Cek kredensial database di `/config/database.php`
-2. Pastikan user & password benar
-3. Pastikan database sudah dibuat di cPanel
-
----
-
-### Problem 2: Permission Denied
-**Error:** `mkdir(): Permission denied`
-
-**Solusi:**
-```bash
-chmod 755 uploads/
-chmod 755 logs/
-```
-
----
-
-### Problem 3: File Not Found
-**Error:** `require_once: failed to open stream`
-
-**Solusi:**
-1. Pastikan semua file sudah di-upload
-2. Cek struktur folder
-3. Pastikan path benar (case-sensitive)
-
----
-
-### Problem 4: White Screen (Blank Page)
-**Solusi:**
-1. Enable error reporting di `php.ini`:
-   ```
-   display_errors = On
-   error_reporting = E_ALL
-   ```
-2. Atau tambahkan di `index.php`:
-   ```php
-   ini_set('display_errors', 1);
-   error_reporting(E_ALL);
-   ```
-
----
-
-## 💡 TIPS PENTING
-
-### 1. Security
-- ⚠️ **HAPUS** `test_connection.php` setelah test berhasil
-- ⚠️ **HAPUS** `database/install.php` setelah install
-- ⚠️ **HAPUS** `database/seed.php` setelah seeding
-- ⚠️ **SET** `DEBUG_MODE = false` di production (constants.php line 178)
-
-### 2. Backup
-- 💾 Backup database secara rutin
-- 💾 Backup file sebelum update
-
-### 3. Performance
-- 🚀 Enable OPcache di server
-- 🚀 Use CDN untuk assets
-- 🚀 Compress images
-
----
-
-## 📞 NEED HELP?
-
-Jika ada masalah:
-
-1. **Cek error log:** `/logs/error_YYYY-MM-DD.log`
-2. **Run test:** `http://domainanda.com/test_connection.php`
-3. **Tanya di sini (Claude.ai):** Diskusi & troubleshooting
-4. **Eksekusi di Claude Code:** Fix & coding
-
----
-
-## 🎯 SUMMARY
-
-**BATCH 1 & 2 SUDAH BENAR! ✅**
-
-Yang perlu kamu lakukan:
-
-1. **Upload file ke server**
-2. **Akses `test_connection.php`** untuk test
-3. **Run `database/install.php`** untuk install DB
-4. **Run `database/seed.php`** untuk isi data
-5. **Buat `index.php`** untuk homepage test
-6. **Akses website** dan pastikan jalan
-7. **Lanjut BATCH 3** (CSS & Design)
-
-**File yang saya buatkan:**
-- ✅ `test_connection.php` - Test koneksi & system
-- ✅ Panduan ini
-
-**Next:**
-- Minta Claude Code lanjut **BATCH 3** (CSS Assets)
-- Atau kita fix **tier system** dulu
-
-**Pilih mana dulu?** 😊
-
----
-
-© 2025 SITUNEO DIGITAL - Setup Guide
-Generated: October 30, 2025
-
-# 🔍 REVIEW HASIL BATCH 1 & 2
-
-## ✅ STATUS: BAGUS! SIAP LANJUT!
-
----
-
-## 📊 HASIL REVIEW
-
-### ✅ BATCH 1 - PERFECT! (18 files)
-**Core Config & Functions**
-
-```
-STATUS: ✅ SEMUA BENAR!
-KUALITAS: ⭐⭐⭐⭐⭐ (Excellent)
-SIAP PAKAI: YA
-```
-
-**Detail Files:**
-- ✅ Database connection working (mysqli)
-- ✅ All constants defined correctly
-- ✅ Company data sesuai (NIB, email, WhatsApp)
-- ✅ All utility functions ready
-- ✅ Security functions implemented
-- ✅ Error handling configured
-- ✅ Session management ready
-
-**Highlight:**
-- Code clean & well-documented
-- Modular structure
-- Easy to maintain
-- Production-ready
-
----
-
-### ✅ BATCH 2 - PERFECT! (33 files)
-**Database Structure**
-
-```
-STATUS: ✅ SEMUA BENAR!
-KUALITAS: ⭐⭐⭐⭐⭐ (Excellent)
-SIAP PAKAI: YA
-```
-
-**Detail Files:**
-- ✅ 25 migration files (all tables)
-- ✅ 6 seed files (default data)
-- ✅ install.php (installer script)
-- ✅ seed.php (seeder script)
-
-**Database Tables Created:**
-1. users
-2. user_profiles
-3. password_resets
-4. login_logs
-5. service_categories
-6. services
-7. service_packages
-8. orders
-9. order_items
-10. order_status_history
-11. payments
-12. payment_methods
-13. freelancers
-14. commissions
-15. withdrawals
-16. notifications
-17. security_logs
-18. activity_logs
-19. settings
-20. testimonials
-21. portfolios
-22. faqs
-23. contact_messages
-24. blog_categories
-25. blog_posts
-
-**Highlight:**
-- Comprehensive database schema
-- Properly normalized
-- Foreign keys defined
-- Indexes optimized
-- Seed data included
-
----
-
-## ⚠️ YANG PERLU DIPERBAIKI
-
-### 1. TIER SYSTEM (Minor Issue)
-
-**Location:** `/config/constants.php` line 114-136
-
-**Problem:**
-Tier system tidak sesuai dengan spesifikasi di dokumen.
-
-**Current (Wrong):**
+Functions needed:
 ```php
-Tier 1: 0-10 orders = 30%
-Tier 2: 10-25 orders = 40%
-Tier 3: 25-50 orders = 50%
-Tier MAX: 75+ orders = 55%
+/**
+ * Calculate service price with add-ons
+ */
+function calculateServicePrice($service_id, $addons = []) {
+    // Base service + addons
+    // Return array: ['base_price' => X, 'addons_price' => Y, 'total' => Z]
+}
+
+/**
+ * Calculate package price with bundling discount
+ */
+function calculatePackagePrice($package_id) {
+    // Package with discount
+    // Return array with breakdown
+}
+
+/**
+ * Apply percentage discount
+ */
+function applyDiscount($price, $discount_percent) {
+    // Return discounted price
+}
+
+/**
+ * Calculate total for multiple items
+ */
+function getTotalOrderPrice($items) {
+    // items = array of [service_id, quantity, addons]
+    // Return total with breakdown
+}
+
+/**
+ * Separate commissionable vs third-party costs
+ */
+function separateOrderCosts($items) {
+    // Return ['commissionable' => X, 'third_party' => Y]
+}
 ```
 
-**Should be (Correct):**
+Requirements:
+- Handle one-time vs monthly subscription
+- Separate third-party costs (domain, hosting, SSL)
+- Return detailed breakdown
+- Max 200 lines
+
+Example:
 ```php
-Bronze: 15% (start)
-Silver: 25% (6 orders total, maintain 3/month)
-Gold: 35% (16 orders total, maintain 8/month)
-Platinum: 45% (31 orders total, maintain 15/month)
-Diamond: 50% (51 orders total, maintain 25/month)
+$items = [
+    [
+        'service_id' => 1,        // Website Basic
+        'price' => 3000000,
+        'is_commissionable' => true
+    ],
+    [
+        'service_id' => 15,       // Domain
+        'price' => 150000,
+        'is_commissionable' => false  // Third-party!
+    ]
+];
+
+$result = separateOrderCosts($items);
+// Result: ['commissionable' => 3000000, 'third_party' => 150000]
 ```
 
-**Impact:** Medium
-**Priority:** High
-**Solusi:** Sudah saya buatkan file `FIX_TIER_SYSTEM.php`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE 3: /includes/services/commission-calculator.php
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
----
+Functions needed:
+```php
+/**
+ * Calculate commission by tier
+ */
+function calculateCommission($order_value, $tier_id) {
+    // Use tier config from constants.php (yang baru!)
+    // Return commission amount
+}
 
-### 2. MISSING FILES (5 files)
+/**
+ * Get commissionable amount (exclude third-party)
+ */
+function getCommissionableAmount($order_value, $third_party_costs) {
+    // order_value - third_party_costs
+    // Return commissionable amount only
+}
 
-**Location:** `/includes/services/`
+/**
+ * Get partner commission history
+ */
+function getPartnerCommissionHistory($partner_id, $month, $year) {
+    // Return array of commission records
+}
 
-**Missing:**
-- ❌ service-functions.php
-- ❌ pricing-calculator.php
-- ❌ commission-calculator.php
-- ❌ tier-checker.php
-- ❌ order-processor.php
+/**
+ * Get total commission for month
+ */
+function getTotalCommissionMonth($partner_id, $month, $year) {
+    // Return total earned in that month
+}
 
-**Impact:** High (needed for core functionality)
-**Priority:** High
-**Solusi:** Minta Claude Code bikin di BATCH berikutnya
-
----
-
-## 🚀 ACTION ITEMS
-
-### IMMEDIATE (Harus Sekarang)
-
-**1. Upload ke Server**
-```
-✅ Extract BATCH_1.zip
-✅ Extract BATCH_2.zip
-✅ Upload semua file
-```
-
-**2. Test Koneksi**
-```
-✅ Upload test_connection.php
-✅ Akses http://domain.com/test_connection.php
-✅ Pastikan semua hijau
-```
-
-**3. Install Database**
-```
-✅ Akses http://domain.com/database/install.php
-✅ Tunggu sampai selesai
-✅ Hapus install.php
+/**
+ * Store commission record in database
+ */
+function recordCommission($order_id, $partner_id, $amount, $tier_id, $rate) {
+    // Insert into commissions table
+}
 ```
 
-**4. Seed Data**
-```
-✅ Akses http://domain.com/database/seed.php
-✅ Tunggu sampai selesai
-✅ Hapus seed.php
-```
+CRITICAL RULES:
+Commission TIDAK dihitung dari:
+- ❌ Domain registration (third-party)
+- ❌ Hosting fees (third-party)
+- ❌ SSL certificates (third-party)
+- ❌ Google Workspace (third-party)
+- ❌ Email hosting (third-party)
 
-**5. Fix Tier System**
-```
-✅ Copy code dari FIX_TIER_SYSTEM.php
-✅ Replace di config/constants.php line 114-136
-✅ Save file
-```
+Commission HANYA dari:
+- ✅ Jasa SITUNEO (website development, design, SEO, ads)
+- ✅ Add-ons yang dikerjakan SITUNEO
 
----
+Example calculation:
+```php
+$order_total = 5000000;
+$breakdown = [
+    'website_dev' => 3000000,      // ✅ Commissionable
+    'addons' => 1000000,           // ✅ Commissionable
+    'domain' => 150000,            // ❌ NOT commissionable
+    'hosting' => 850000            // ❌ NOT commissionable
+];
 
-### NEXT BATCH (Lanjutan)
-
-**BATCH 3: CSS Assets (20 files)**
-Priority: High
-Estimated: 1-2 hari
-
-**BATCH 4: JavaScript Assets (20 files)**
-Priority: High
-Estimated: 1-2 hari
-
-**BATCH 5: Layout Components (18 files)**
-Priority: High
-Estimated: 1-2 hari
-
-**BATCH 6-15: Remaining features**
-Priority: Medium-High
-Estimated: 2-3 minggu
-
----
-
-## 📥 FILES UNTUK KAMU
-
-### Yang Sudah Saya Buatkan:
-
-1. **test_connection.php**
-   - Test koneksi database
-   - Test PHP version & extensions
-   - Test file structure
-   - Test permissions
-
-2. **PANDUAN_SETUP_LENGKAP.md**
-   - Step-by-step setup
-   - Troubleshooting guide
-   - Security tips
-   - Performance tips
-
-3. **FIX_TIER_SYSTEM.php**
-   - Code untuk fix tier system
-   - Dokumentasi lengkap
-   - Example scenarios
-
-4. **REVIEW_HASIL_BATCH_1_2.md** (file ini)
-   - Summary hasil review
-   - Action items
-   - Next steps
-
----
-
-## 🎯 KESIMPULAN
-
-### ✅ GOOD NEWS:
-
-1. **BATCH 1 & 2 sudah SEMPURNA!**
-   - Code quality excellent
-   - Well-documented
-   - Production-ready
-   - No major bugs
-
-2. **Struktur modular sudah benar**
-   - Easy to maintain
-   - Easy to scale
-   - Easy to debug
-
-3. **Database schema solid**
-   - Properly designed
-   - Optimized
-   - Scalable
-
-### ⚠️ MINOR ISSUES:
-
-1. **Tier system perlu di-fix** (easy fix)
-2. **5 files masih missing** (akan dibuat di batch berikutnya)
-
-### 🚀 READY TO GO:
-
-**Confidence Level: 95%**
-
-BATCH 1 & 2 sudah siap production. Tinggal:
-- Fix tier system (5 menit)
-- Upload & install (15 menit)
-- Lanjut BATCH 3
-
----
-
-## 💡 REKOMENDASI
-
-### Opsi 1: Fix Dulu, Lanjut Nanti
-```
-1. Upload BATCH 1 & 2
-2. Install database
-3. Fix tier system
-4. Test koneksi
-5. Istirahat
-6. Besok lanjut BATCH 3
-```
-**Benefit:** Lebih tenang, bisa review dengan baik
-
-### Opsi 2: Full Speed Ahead (Recommended)
-```
-1. Upload BATCH 1 & 2
-2. Install database
-3. Fix tier system
-4. Test koneksi ✅
-5. Langsung minta Claude Code lanjut BATCH 3
-```
-**Benefit:** Progress cepat, momentum terjaga
-
-### Opsi 3: Deep Review First
-```
-1. Upload BATCH 1 & 2
-2. Install database
-3. Buat missing 5 files dulu
-4. Fix tier system
-5. Full testing
-6. Baru lanjut BATCH 3
-```
-**Benefit:** Lebih solid, tapi lebih lama
-
----
-
-## 📝 NEXT MESSAGE KE CLAUDE CODE
-
-**Jika sudah upload & install:**
-
-```
-@Claude Code:
-
-BATCH 1 & 2 sudah ter-install dengan sukses! ✅
-
-Test connection: ALL PASSED ✅
-Database: 25 tables created ✅
-Seed data: Completed ✅
-
-REVISI YANG PERLU DILAKUKAN:
-
-1. Tier system sudah saya fix manual
-2. Ada 5 files yang masih missing:
-   - /includes/services/service-functions.php
-   - /includes/services/pricing-calculator.php
-   - /includes/services/commission-calculator.php
-   - /includes/services/tier-checker.php
-   - /includes/services/order-processor.php
-
-PERMINTAAN:
-
-1. Buatkan 5 missing files di atas
-2. Lalu lanjut BATCH 3 (CSS Assets - 20 files)
-
-File harus include:
-- Comment yang jelas
-- Function documentation
-- Error handling
-- Follow struktur yang sudah ada
-
-Siap mulai?
+$commissionable = 4000000;         // 3000000 + 1000000
+$tier_id = TIER_2_ID;              // 40%
+$commission = calculateCommission($commissionable, $tier_id);
+// Result: Rp 1.600.000 (40% dari 4.000.000)
 ```
 
----
+Requirements:
+- Use tier constants yang BARU (dengan Tier 3 max = 75)
+- Store in commissions table
+- Max 200 lines
 
-## 🔍 FINAL CHECK BEFORE NEXT BATCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE 4: /includes/services/tier-checker.php
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Checklist:**
-- [ ] BATCH 1 uploaded & tested ✅
-- [ ] BATCH 2 uploaded & tested ✅
-- [ ] Database installed ✅
-- [ ] Seed data loaded ✅
-- [ ] Tier system fixed ✅
-- [ ] test_connection.php passed ✅
-- [ ] Homepage test working ✅
+Functions needed:
+```php
+/**
+ * Get current tier from database
+ */
+function getCurrentTier($partner_id) {
+    // Query freelancers table
+    // Return tier_id
+}
 
-**Jika semua ✅, READY untuk BATCH 3!**
+/**
+ * Count orders this month
+ */
+function getOrdersThisMonth($partner_id, $month = null, $year = null) {
+    // Count orders in specified month
+    // Default to current month
+    // Return count
+}
 
----
+/**
+ * Check if tier update needed
+ */
+function checkTierUpdate($partner_id) {
+    // Get current tier
+    // Count orders this month
+    // Check upgrade/downgrade rules
+    // Return ['action' => 'upgrade'|'downgrade'|'maintain', 'new_tier' => X]
+}
 
-## 🎉 SUMMARY
+/**
+ * Update partner tier in database
+ */
+function updatePartnerTier($partner_id, $new_tier_id) {
+    // Update freelancers.tier_id
+    // Log in activity_logs
+    // Return success boolean
+}
 
-**BATCH 1 & 2: EXCELLENT WORK!**
+/**
+ * Get tier progress (untuk dashboard)
+ */
+function getTierProgress($partner_id) {
+    // Current tier, orders this month, next tier target
+    // Return array with progress percentage
+}
 
-Quality: ⭐⭐⭐⭐⭐
-Readiness: 95%
-Issues: Minor (easy fix)
-Next: BATCH 3 (CSS)
+/**
+ * Send tier notification email
+ */
+function sendTierNotification($partner_id, $old_tier, $new_tier, $action) {
+    // action = 'upgrade' | 'downgrade'
+    // Send email using email functions
+}
+```
 
-**Your project is on track!** 🚀
+TIER UPDATE LOGIC (MONTHLY BASIS):
+```
+Current Month Orders → Action:
 
----
+TIER 1:
+- If orders >= 10 → UPGRADE to Tier 2
+- Else → MAINTAIN Tier 1
 
-© 2025 SITUNEO DIGITAL - Review Report
-Generated: October 30, 2025
+TIER 2:
+- If orders >= 25 → UPGRADE to Tier 3
+- Else if orders < 10 → DOWNGRADE to Tier 1
+- Else → MAINTAIN Tier 2
+
+TIER 3:
+- If orders >= 75 → UPGRADE to Tier MAX
+- Else if orders < 25 → DOWNGRADE to Tier 2
+- Else → MAINTAIN Tier 3
+
+TIER MAX:
+- If orders < 75 → DOWNGRADE to Tier 3
+- Else → MAINTAIN Tier MAX
+```
+
+Requirements:
+- Count orders by month/year
+- Use tier constants yang BARU
+- Send email notification on change
+- Max 200 lines
+
+Email template example:
+```
+Subject: 🎉 Selamat! Tier Anda Naik ke Tier 2!
+
+Halo [Partner Name],
+
+Selamat! Tier partnership Anda telah naik ke Tier 2 - Professional!
+
+Performance bulan lalu:
+✅ Total Orders: 12 orders
+✅ Target Tier 2: 10 orders
+✅ Komisi Rate Baru: 40%
+
+Mulai bulan ini, komisi Anda adalah 40% dari nilai jasa SITUNEO.
+
+Untuk maintain Tier 2:
+⚠️ Minimum 10 orders per bulan
+
+Untuk upgrade ke Tier 3:
+💪 Target 25 orders per bulan
+
+Keep up the great work!
+
+Best regards,
+SITUNEO DIGITAL Team
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE 5: /includes/services/order-processor.php
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Functions needed:
+```php
+/**
+ * Create new order
+ */
+function createOrder($customer_id, $items, $partner_id = null, $notes = '') {
+    // Insert into orders table
+    // Insert items into order_items table
+    // Calculate commission if partner_id provided
+    // Create status history
+    // Return order_id or false
+}
+
+/**
+ * Add item to order
+ */
+function addOrderItem($order_id, $service_id, $quantity, $price, $is_commissionable = true) {
+    // Insert into order_items
+    // Return item_id or false
+}
+
+/**
+ * Update order status
+ */
+function updateOrderStatus($order_id, $status, $notes = '') {
+    // Update orders.status
+    // Insert into order_status_history
+    // Send notification
+    // Return boolean
+}
+
+/**
+ * Assign order to partner/freelancer
+ */
+function assignOrderToPartner($order_id, $partner_id) {
+    // Update orders.partner_id
+    // Calculate & store commission
+    // Send notification to partner
+    // Return boolean
+}
+
+/**
+ * Calculate and store commission for order
+ */
+function calculateOrderCommission($order_id) {
+    // Get order items
+    // Separate commissionable vs third-party
+    // Get partner tier
+    // Calculate commission
+    // Store in commissions table
+    // Return commission amount
+}
+
+/**
+ * Get full order details with items
+ */
+function getOrderDetails($order_id) {
+    // Get order + items + customer + partner
+    // Return array with all info
+}
+
+/**
+ * Get customer's orders
+ */
+function getCustomerOrders($customer_id, $status = null) {
+    // Return array of orders
+    // Filter by status if provided
+}
+
+/**
+ * Get partner's orders
+ */
+function getPartnerOrders($partner_id, $status = null) {
+    // Return array of orders assigned to partner
+    // Filter by status if provided
+}
+```
+
+Order Statuses:
+```php
+'pending'      => Order baru, belum bayar
+'paid'         => Sudah bayar, menunggu dikerjakan
+'in_progress'  => Sedang dikerjakan
+'review'       => Menunggu review customer
+'completed'    => Selesai
+'cancelled'    => Dibatalkan
+```
+
+Requirements:
+- Insert ke orders & order_items tables
+- Calculate commissionable amount
+- Store commission if partner_id provided
+- Create status history
+- Send notifications
+- Max 200 lines
+
+Example usage:
+```php
+$customer_id = 123;
+$items = [
+    [
+        'service_id' => 1,
+        'quantity' => 1,
+        'price' => 3000000,
+        'is_commissionable' => true
+    ],
+    [
+        'service_id' => 15,
+        'quantity' => 1,
+        'price' => 150000,
+        'is_commissionable' => false  // Domain = third-party
+    ]
+];
+$partner_id = 45;
+$notes = 'Website untuk toko online';
+
+$order_id = createOrder($customer_id, $items, $partner_id, $notes);
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎨 PRIORITY 3: BATCH 3 - CSS ASSETS (20 FILES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Location: /assets/css/
+
+DESIGN SYSTEM (CONFIRMED):
+
+Colors (Versi 1):
+- Primary Blue: #1E5C99
+- Dark Blue: #0F3057
+- Gold: #FFB400
+- Bright Gold: #FFD700
+- White: #FFFFFF
+- Text Light: #e9ecef
+- Gradient Primary: linear-gradient(135deg, #1E5C99 0%, #0F3057 100%)
+- Gradient Gold: linear-gradient(135deg, #FFD700 0%, #FFB400 100%)
+
+Typography:
+- Font Primary: Plus Jakarta Sans
+- Font Secondary: Inter
+- Font Weights: 300, 400, 500, 600, 700, 800, 900
+
+Style Direction:
+- Modern, Premium, Luxury, Professional
+- Elegant tapi approachable
+- Smooth transitions & animations
+- Clean, spacious layout dengan gold accents
+
+FILES TO CREATE (20 files):
+
+📁 /assets/css/ (Core - 8 files):
+1. variables.css - CSS custom properties
+2. reset.css - CSS reset & normalize
+3. typography.css - Font styles & text utilities
+4. layout.css - Grid, flexbox, container
+5. components.css - Buttons, cards, forms, badges
+6. utilities.css - Helper classes
+7. animations.css - Keyframes & transitions
+8. responsive.css - Media queries
+
+📁 /assets/css/pages/ (Page-specific - 6 files):
+9. homepage.css - Homepage sections
+10. services.css - Services catalog
+11. portfolio.css - Portfolio showcase
+12. contact.css - Contact page
+13. pricing.css - Pricing page
+14. blog.css - Blog listing & detail
+
+📁 /assets/css/admin/ (Admin panel - 4 files):
+15. admin-base.css - Admin layout
+16. dashboard.css - Dashboard widgets
+17. tables.css - Data tables
+18. forms.css - Admin forms
+
+📁 /assets/css/ (Additional - 2 files):
+19. print.css - Print styles
+20. custom.css - Custom overrides
+
+REQUIREMENTS:
+
+1. Use CSS Variables:
+```css
+:root {
+    /* Colors */
+    --color-primary: #1E5C99;
+    --color-dark: #0F3057;
+    --color-gold: #FFB400;
+    --color-gold-bright: #FFD700;
+    --color-white: #FFFFFF;
+    --color-text-light: #e9ecef;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #1E5C99 0%, #0F3057 100%);
+    --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFB400 100%);
+    
+    /* Typography */
+    --font-primary: 'Plus Jakarta Sans', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Spacing (8px grid) */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 32px;
+    --space-5: 40px;
+}
+```
+
+2. Mobile-First Approach:
+```css
+/* Base: Mobile */
+.container { width: 100%; padding: 15px; }
+
+/* Tablet: 768px+ */
+@media (min-width: 768px) {
+    .container { padding: 30px; }
+}
+
+/* Desktop: 1200px+ */
+@media (min-width: 1200px) {
+    .container { max-width: 1140px; margin: 0 auto; }
+}
+```
+
+3. Component Classes:
+- .btn-primary (blue gradient)
+- .btn-gold (gold gradient)
+- .card (white bg, shadow, rounded)
+- .badge (tier badges)
+- .modal (overlay modal)
+- .alert (success, error, warning, info)
+
+4. Utility Classes:
+- Spacing: .mt-1, .mb-2, .p-3
+- Text: .text-center, .text-bold, .text-primary
+- Display: .d-flex, .d-none, .d-block
+- Colors: .bg-primary, .bg-gold, .text-white
+
+5. Animations:
+- Fade in on scroll
+- Button hover (scale + shadow)
+- Card hover (lift + shadow)
+- Smooth page transitions
+
+STYLE SESUAI CODE SAMPLE KAMU:
+- Embedded network background animation
+- Navbar dengan scroll effect
+- Floating WhatsApp button
+- Gold gradient titles
+- Smooth transitions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 SUMMARY & ACTION PLAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+URUTAN PENGERJAAN:
+
+✅ STEP 1: Fix Tier System (5 menit)
+   └─ Update /config/constants.php
+   └─ Tier 3 max: 50 → 75 orders
+
+✅ STEP 2: Create 5 Missing Files (30 menit)
+   ├─ /includes/services/service-functions.php
+   ├─ /includes/services/pricing-calculator.php
+   ├─ /includes/services/commission-calculator.php
+   ├─ /includes/services/tier-checker.php
+   └─ /includes/services/order-processor.php
+
+✅ STEP 3: BATCH 3 - CSS Assets (60 menit)
+   ├─ Core CSS (8 files)
+   ├─ Page-specific CSS (6 files)
+   ├─ Admin CSS (4 files)
+   └─ Additional CSS (2 files)
+
+TOTAL ESTIMASI: 1.5-2 jam
+
+FORMAT OUTPUT:
+📦 SITUNEO_BATCH_3.zip (Cumulative)
+   ├─ config/ (8 files - UPDATED with tier fix)
+   ├─ includes/ (15 files - ADDED 5 new service files)
+   ├─ database/ (33 files from BATCH 2)
+   ├─ assets/css/ (20 CSS files - NEW!)
+   ├─ BATCH_1_SUMMARY.md
+   ├─ BATCH_2_SUMMARY.md
+   └─ BATCH_3_SUMMARY.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EXPECTED OUTPUT:
+
+Tolong kasih summary setelah selesai:
+1. ✅ Tier system fixed (Tier 3 max = 75)
+2. ✅ 5 missing files created
+3. ✅ 20 CSS files created
+4. 📦 ZIP file: SITUNEO_BATCH_3.zip (cumulative)
+5. 📝 Brief description masing-masing file
+6. ⚠️ Any issues atau catatan
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTES:
+- Semua file max 200 baris
+- Follow style dari BATCH 1
+- Use consistent naming
+- Add comprehensive comments
+- Test semua functions
+- Format ZIP cumulative (include BATCH 1 + 2 + fix + new files)
+
+Ready to start? Let's fix & build! 🚀

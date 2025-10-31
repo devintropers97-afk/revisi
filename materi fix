@@ -865,3 +865,60 @@ Testing Summary:
 Score: 8/8 Pass (100%) ✅
 
 Next: Siap lanjut ke BATCH 4 atau mau test dulu?
+
+BATCH 4 SPECIFICATION - Frontend HTML Pages
+Perfect! Saya sudah extract semua requirement BATCH 4. Ini adalah task besar:
+
+📋 BATCH 4 Overview:
+Total Deliverables: 15 HTML Pages + Components
+
+✅ 8 Public Pages (Homepage, About, Services, Portfolio, Pricing, Calculator, Contact, Blog)
+✅ 2 Auth Pages (Login, Register)
+✅ 4 Dashboard Pages (Dashboard, Orders, Payments, Profile)
+✅ 1 Error Page (404)
+✅ Reusable Components (Header, Footer, Navigation, WhatsApp Float)
+Integration Required:
+
+✅ All BATCH 1 config & functions
+✅ All BATCH 2 database tables
+✅ All BATCH 3 CSS files (20 files)
+✅ Dynamic data (services, portfolio, testimonials, FAQs, blog)
+Design System:
+
+✅ Blue/Gold theme (#1E5C99, #FFD700)
+✅ Plus Jakarta Sans + Inter fonts
+✅ Gradients & animations
+✅ Mobile-first responsive
+Key Features:
+
+✅ Interactive price calculator
+✅ WhatsApp integration (+62 831-7386-8915)
+✅ Portfolio showcase (50+ projects)
+✅ Services catalog (26 services)
+✅ Tier system display
+✅ SEO optimized
+✅ Security (CSRF, XSS protection)
+❓ Sebelum Mulai BATCH 4, Konfirmasi Dulu:
+1. Mau mulai BATCH 4 sekarang?
+
+🟢 Ya, langsung mulai sekarang
+🟡 Tunggu, mau test BATCH 3 dulu
+2. Approach BATCH 4:
+
+Option A: 3 sub-batches (4.1: Public Pages, 4.2: Auth Pages, 4.3: Dashboard) - lebih organized
+Option B: Langsung semua 15 pages sekaligus - lebih cepat
+3. Images & Assets:
+
+Option A: Placeholder images (image.placeholder.com atau similar)
+Option B: Path saja (/assets/images/...), user upload sendiri nanti
+4. Database Integration:
+
+Option A: Full dynamic (pull real data dari DB)
+Option B: Static demo content (hardcoded untuk testing)
+5. Auth Pages:
+
+Option A: Fully functional (login/register benar-benar authenticate)
+Option B: Frontend only (form saja, backend nanti)
+Mau saya lanjut dengan approach mana? Atau mau saya putuskan sendiri berdasarkan best practice? 😊
+
+1.hijau 2.option a 3.ganti ini bisa, untuk sementara Unsplash Source , klo udah fix baru , mulai yang asli 4.Option A: Full dynamic (pull real data dari DB) 5.Option A: Fully functional (login/register benar-benar authenticate)
